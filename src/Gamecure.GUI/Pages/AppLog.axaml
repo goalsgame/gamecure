@@ -1,0 +1,61 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Gamecure.GUI.ViewModels"
+             xmlns:controls="clr-namespace:Gamecure.GUI.Controls"
+             xmlns:models="clr-namespace:Gamecure.GUI.Models"
+             xmlns:converters="clr-namespace:Gamecure.GUI.Converters"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Gamecure.GUI.Pages.AppLog">
+
+  <UserControl.DataContext>
+    <viewModels:AppLogViewModel />
+  </UserControl.DataContext>
+
+  <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <Label FontSize="20" HorizontalAlignment="Center">Application Log</Label>
+    <Separator Height="2" Margin="10" Background="#ccc" />
+
+    <Border BorderThickness="0 0 0 1" BorderBrush="#ccc" Padding="10 10 10 2">
+      <Grid ColumnDefinitions="200 * 200 100">
+        <TextBlock Grid.Column="0" FontSize="18" Text="Created" />
+        <TextBlock Grid.Column="1" FontSize="18" Text="Filename" />
+        <TextBlock Grid.Column="2" FontSize="18" Text="Size" />
+        <TextBlock Grid.Column="3" FontSize="18" Text="Action" />
+      </Grid>
+    </Border>
+    <controls:AsyncTask Task="{Binding GetLogFilesTask}">
+      <ListBox Items="{Binding LogEntries}" Height="300" SelectionMode="Single" SelectedItem="{Binding SelectedItem}">
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <Grid ColumnDefinitions="200 * 200 100">
+              <TextBlock Grid.Column="0" Text="{Binding Created}" />
+              <TextBlock Grid.Column="1" Text="{Binding Filename}" />
+              <TextBlock Grid.Column="2" Text="{Binding Size, StringFormat=' {0} bytes'}" />
+              <Button Grid.Column="3" Command="{Binding $parent[ListBox].DataContext.DeleteLogFile, FallbackValue=null}" CommandParameter="{Binding}">Delete</Button>
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </controls:AsyncTask>
+    <Separator Height="1" Background="#ccc" Margin="10" />
+    <controls:AsyncTask Task="{Binding LogEntryTask}" RunOnRetry="True">
+      <StackPanel Spacing="10">
+        <TextBlock FontSize="20" HorizontalAlignment="Center" Text="{Binding SelectedItem.Filename, FallbackValue=''}"/>
+        <ItemsRepeater Items="{Binding SelectedLog}">
+          <ItemsRepeater.ItemTemplate>
+            <DataTemplate DataType="models:LogLine">
+              <Grid ColumnDefinitions="200 70 *" Margin="0" MaxWidth="{Binding $parent[StackPanel].Bounds.Width}" Height="20">
+                <TextBlock FontSize="12" Grid.Column="0" Text="{Binding Date}"/>
+                <TextBlock FontSize="12" Grid.Column="1" Text="{Binding Level}" Foreground="{Binding Level, Converter={x:Static converters:LogLevelConverters.LevelToBrush}}"/>
+                <TextBlock FontSize="12" Grid.Column="2" Text="{Binding Value}" TextWrapping="Wrap"/>
+              </Grid>
+            </DataTemplate>
+          </ItemsRepeater.ItemTemplate>
+        </ItemsRepeater>
+      </StackPanel>
+    </controls:AsyncTask>
+  </StackPanel>
+
+</UserControl>

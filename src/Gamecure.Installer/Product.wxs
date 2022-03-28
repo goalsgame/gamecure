@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The gamecure path is set from command line args or the default is the gamecure.gui publish dir. see the .wixproj file-->
+<?define GamecureGUI_Path="$(var.GAMECUREPATH)"?>
+<?define GamecureConfig_Path="$(var.CONFIGPATH)"?>
+<?define Manufacturer="GOALS" ?>
+<?define ProductName="Gamecure" ?>
+<?define ProductVersion=!(bind.FileVersion.Gamecure.exe) ?>
+<!--
+  !! IMPORTANT !!
+  Replace this upgrade code if you've forked this repository and created your own installer.
+-->
+<?define UpgradeCode="38933d87-faa0-4bb1-b58c-6b8e46b1c589" ?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" Name="$(var.ProductName)" Language="1033" Version="$(var.ProductVersion)" Manufacturer="$(var.Manufacturer)" UpgradeCode="$(var.UpgradeCode)">
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." AllowDowngrades="no" AllowSameVersionUpgrades="yes" />
+    <MediaTemplate EmbedCab="yes"/>
+
+    <UIRef Id="WixUI_InstallDir" />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+    <WixVariable Id="WixUIBannerBmp" Value="Resources/Banner.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="Resources/Dialog.bmp" />
+    <Icon Id="Goals.ico" SourceFile="Resources/Goals.ico" />
+    <Feature Id="ProductFeature" Title="$(var.ProductName)" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+      <ComponentRef Id="ApplicationShortcut"/>
+      <ComponentRef Id="AppDataConfig" />
+    </Feature>
+  </Product>
+
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="MANUFACTORDIR" Name="$(var.Manufacturer)">
+          <Directory Id="INSTALLDIR" Name="$(var.ProductName)" />
+        </Directory>
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="$(var.ProductName)"/>
+      </Directory>
+
+      <!--NOTE(Jens): This will create and remove the appdata folder, do we want this? -->
+      <Directory Id="AppDataFolder">
+        <Directory Id="AppDataManufacturerFolder" Name="$(var.Manufacturer)">
+          <Directory Id="AppDataProductFolder" Name="$(var.ProductName)">
+            <Component Id="AppDataConfig" Guid="B53F29EB-9983-44DC-B6C8-B0D5B0B4A734" Feature="ProductFeature">
+              <RemoveFolder Id="RemoveAppDataProductFolder" Directory="AppDataProductFolder" On="uninstall" />
+              <RemoveFolder Id="RemoveAppDataManufacturerFolder" Directory="AppDataManufacturerFolder" On="uninstall" />
+              <RegistryValue Root="HKCU" Key="Software\[Manufacturer]\[ProductName]" Type="string" Name="AppConfigLocation" Value="[AppDataProductFolder]" KeyPath="yes" />
+              <!-- This config file must be generated at build time, should not be in source control -->
+              <File Id="config.json" Source="$(var.GamecureConfig_Path)"/>
+            </Component>
+          </Directory>
+        </Directory>
+      </Directory>
+    </Directory>
+  </Fragment>
+
+  <Fragment>
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid="0D40A76C-A312-4C37-AE86-85A89DBCA9FE">
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="$(var.ProductName)"
+                  Description="Gamcure - The editor"
+                  Target="[#Gamecure.exe]"
+                  WorkingDirectory="INSTALLDIR"
+                  Icon="Goals.ico"
+                  />
+        <RemoveFolder Id="RemoveProgramMenuDir" Directory="ApplicationProgramsFolder" On="uninstall" />
+        <RegistryValue Root="HKCU" Key="Software\[Manufacturer]\[ProductName]" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLDIR">
+      <Component Id="Gamecure.exe" Guid="8596156F-2C82-4D5E-A415-F7F91442D920">
+        <File Id="Gamecure.exe" Source="$(var.GamecureGUI_Path)\Gamecure.GUI.exe" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="libSkiaSharp.dll" Guid="65BCFEAF-DA10-4CF3-8330-D78556F0C003">
+        <File Id="libSkiaSharp.dll" Source="$(var.GamecureGUI_Path)\libSkiaSharp.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="libHarfBuzzSharp.dll" Guid="C7353A59-148F-4E02-9280-D84D955FB6F7">
+        <File Id="libHarfBuzzSharp.dll" Source="$(var.GamecureGUI_Path)\libHarfBuzzSharp.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>

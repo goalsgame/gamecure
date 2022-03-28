@@ -1,0 +1,46 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:Gamecure.GUI.ViewModels"
+        xmlns:pages="clr-namespace:Gamecure.GUI.Pages"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="Gamecure.GUI.Views.MainView">
+  <UserControl.DataContext>
+    <viewModels:MainViewModel/>
+  </UserControl.DataContext>
+  <DockPanel LastChildFill="true">
+    <Border DockPanel.Dock="Bottom" Background="#222" BorderThickness="0 1 0 0" BorderBrush="#444" >
+      <pages:Quotes/>
+    </Border>
+    <Border>
+      <TabControl x:Name="TabControl" Classes="sidebar" Padding="0">
+        <TabItem>
+          <TabItem.Header>
+            <Image Width="30">
+              <DrawingImage Drawing="{StaticResource IconPen}"/>
+            </Image>
+          </TabItem.Header>
+          <pages:EditorSync />
+        </TabItem>
+        <TabItem>
+          <TabItem.Header>
+            <Image Width="30">
+              <DrawingImage Drawing="{StaticResource IconCog}"/>
+            </Image>
+          </TabItem.Header>
+          <pages:Config />
+        </TabItem>
+        <TabItem>
+          <TabItem.Header>
+            <Image Width="30">
+              <DrawingImage Drawing="{StaticResource IconPaper}"/>
+            </Image>
+          </TabItem.Header>
+          <pages:AppLog />
+        </TabItem>
+      </TabControl>
+    </Border>
+
+  </DockPanel>
+</UserControl>

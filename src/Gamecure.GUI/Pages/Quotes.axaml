@@ -1,0 +1,15 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Gamecure.GUI.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Gamecure.GUI.Pages.Quotes">
+  <UserControl.DataContext>
+    <vm:NerdQuotesViewModel/>
+  </UserControl.DataContext>
+  <StackPanel Margin="0 12">
+    <TextBlock TextAlignment="Center" Foreground="#aaFFFFFF" Text="{Binding Quote.Text}" TextWrapping="Wrap" MaxLines="100"/>
+    <TextBlock TextAlignment="Center" Foreground="#aaFFFFFF" Text="{Binding Quote.Author, StringFormat='- {0}'}"/>
+  </StackPanel>
+</UserControl>

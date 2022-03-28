@@ -1,0 +1,19 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:Gamecure.GUI.ViewModels"
+        xmlns:controls="clr-namespace:Gamecure.GUI.Controls"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="650"
+        x:Class="Gamecure.GUI.Views.MainWindow"
+        Icon="/Assets/goals.ico"
+        Title="Gamecure - Worst, Episode, Ever!"
+        WindowState="Maximized"
+>
+  <Design.DataContext>
+    <viewModels:MainWindowViewModel/>
+  </Design.DataContext>
+  <controls:AsyncTask Task="{Binding LoadConfigTask}">
+    <ContentPresenter Content="{Binding Content}" />
+  </controls:AsyncTask>
+</Window>

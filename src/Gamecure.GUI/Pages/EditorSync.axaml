@@ -1,0 +1,123 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:parser="clr-namespace:Gamecure.Core.Plastic.Parser;assembly=Gamecure.Core"
+             xmlns:editorSync="clr-namespace:Gamecure.GUI.ViewModels.EditorSync"
+             xmlns:controls="clr-namespace:Gamecure.GUI.Controls"
+             xmlns:converters="clr-namespace:Gamecure.GUI.Converters"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="850"
+             x:Class="Gamecure.GUI.Pages.EditorSync">
+
+  <UserControl.DataContext>
+    <editorSync:EditorSyncViewModel/>
+  </UserControl.DataContext>
+
+  <controls:AsyncTask Task="{Binding PreReqTask}" Message="Making sure you didn't mess up.." RunOnRetry="True">
+    <StackPanel>
+      <Grid ColumnDefinitions="* Auto Auto" >
+        <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="10 0" VerticalAlignment="Center" IsVisible="{Binding IsVersionMismatch}">
+          <Image Height="20" Margin="10 0">
+            <DrawingImage Drawing="{StaticResource IconExclamation}"/>
+          </Image>
+          <TextBlock Text="There's a new version of the editor!"/>
+        </StackPanel>
+        <Button Grid.Column="1" Margin="5" FontSize="20" Command="{Binding LaunchGluon}">Launch Gluon</Button>
+        <Button Grid.Column="2" Margin="5" FontSize="20" Command="{Binding LaunchEditor}" IsEnabled="{Binding !DownloadEditorTask.IsRunning}">Launch Editor</Button>
+      </Grid>
+      <Separator Height="1" Background="{StaticResource LightSeparator}" Margin="0 10"/>
+      <controls:AsyncTask Task="{Binding DownloadEditorTask}" ShowContent="True" Message="Downloading editor.. please wait.. ">
+        <StackPanel>
+          <TextBox IsEnabled="{Binding !MainBranchOnly}" Watermark="Filter on branchname" Text="{Binding BranchFilter}"/>
+          <Grid ColumnDefinitions="Auto Auto *" Margin="0 4">
+            <CheckBox Grid.Column="0" Name="MainBranch" IsChecked="{Binding MainBranchOnly}"/>
+            <Label Grid.Column="1" Target="MainBranch" Padding="0 10 0 0 ">Main branch only</Label>
+            <Button  Grid.Column="2" Command="{Binding RefreshPlastic}" IsEnabled="{Binding !PlasticChangesetTask.IsRunning}" HorizontalAlignment="Right" Padding="6" Height="36" Width="40">
+              <Image >
+                <DrawingImage Drawing="{StaticResource IconRefresh}" />
+              </Image>
+            </Button>
+          </Grid>
+          <Separator Height="1" Background="{StaticResource DarkSeparator}" Margin="0 4 0 4"/>
+          <Border BorderThickness="0 0 0 1" BorderBrush="{StaticResource LightSeparator}" Padding="10 10 10 2">
+            <Grid ColumnDefinitions="120 180 * 200 500 100 140">
+              <TextBlock Grid.Column="0" FontSize="16" Text="Changeset" />
+              <TextBlock Grid.Column="1" FontSize="16" Text="Date" />
+              <TextBlock Grid.Column="2" FontSize="16" Text="Branch" />
+              <TextBlock Grid.Column="3" FontSize="16" Text="Owner" />
+              <TextBlock Grid.Column="4" FontSize="16" Text="Comment" />
+              <TextBlock Grid.Column="5" FontSize="16" Text="Can sync" TextAlignment="Center" />
+              <TextBlock Grid.Column="6" FontSize="16" Text="Your editor" TextAlignment="Center" />
+              <!-- Disabled for now because Plastic CLI does not work properly add Width 140 to ColumnDefinition -->
+              <!--<TextBlock Grid.Column="7" FontSize="16" Text="Your changeset" TextAlignment="Center" />-->
+            </Grid>
+          </Border>
+          <controls:AsyncTask Task="{Binding PlasticChangesetTask}" RunOnRetry="True" Message="Doing the plastic things..">
+            <ListBox Items="{Binding Changesets}" SelectedItem="{Binding SelectedChangeset}" MaxHeight="400">
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <Grid ColumnDefinitions="120 180 * 200 500 100 140">
+                    <TextBlock Grid.Column="0" Text="{Binding Changeset.Id}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Changeset.Date}"/>
+                    <TextBlock Grid.Column="2" Text="{Binding Changeset.Branch}"/>
+                    <TextBlock Grid.Column="3" Text="{Binding Changeset.Owner}"/>
+                    <TextBlock Grid.Column="4" Text="{Binding Changeset.Comment}" TextWrapping="WrapWithOverflow" MaxLines="1"/>
+                    <Image Grid.Column="5" Width="20" IsVisible="{Binding !HasEditor}">
+                      <DrawingImage Drawing="{StaticResource IconCross}"/>
+                    </Image>
+                    <Image Grid.Column="5" Width="20" IsVisible="{Binding HasEditor}">
+                      <DrawingImage Drawing="{StaticResource IconCheckmark}"/>
+                    </Image>
+                    <Image Grid.Column="6" Width="20" IsVisible="{Binding IsCurrentEditor}">
+                      <DrawingImage Drawing="{StaticResource IconPin}"/>
+                    </Image>
+                    <!-- Disabled for now because Plastic CLI does not work properly -->
+                    <!--<Image Grid.Column="7" Width="20" IsVisible="{Binding IsCurrentChangeset}">
+                      <DrawingImage Drawing="{StaticResource IconLeftArrow}"/>
+                    </Image>-->
+                  </Grid>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </controls:AsyncTask>
+
+          <Separator Height="1" Background="{StaticResource LightSeparator}" Margin="0 10 0 20"/>
+
+          <Separator Height="1" Background="{StaticResource DarkSeparator}" Margin="0 10"/>
+
+          <StackPanel DataContext="{Binding SelectedChangeset}" IsVisible="{Binding . ,FallbackValue=false, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <TextBlock FontSize="20" Text="{Binding Changeset.Id, StringFormat='Changeset: {0}'}"/>
+            <Separator Height="1" Background="{StaticResource DarkSeparator}" Margin="0 10"/>
+            <Grid ColumnDefinitions="* 10 Auto">
+              <StackPanel Grid.Column="0">
+                <TextBlock Text="{Binding Changeset.Branch, StringFormat='Branch: {0}'}"/>
+                <TextBlock Text="{Binding Changeset.Date, StringFormat='Created: {0}'}"/>
+                <TextBlock Text="{Binding Changeset.Owner, StringFormat='Owner: {0}'}"/>
+                <TextBlock Margin="0 10 0 0">Comment:</TextBlock>
+                <TextBox Name="Comment" Text="{Binding Changeset.Comment}" IsEnabled="False" />
+                <TextBlock Margin="0 10 0 0">Files:</TextBlock>
+                <ScrollViewer MaxHeight="300">
+                  <ItemsRepeater Items="{Binding Changeset.Items}">
+                    <ItemsRepeater.ItemTemplate>
+                      <DataTemplate DataType="parser:PlasticChanges">
+                        <Grid ColumnDefinitions="100 *" Margin="10 0 0 0">
+                          <TextBlock Grid.Column="0" Text="{Binding Type}" Foreground="{Binding Type, Converter={x:Static converters:ChangeTypeConverters.TypeToBrush}}" />
+                          <TextBlock Grid.Column="1" Text="{Binding Filename}" />
+                        </Grid>
+                      </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                  </ItemsRepeater>
+                </ScrollViewer>
+              </StackPanel>
+
+              <StackPanel Grid.Column="2" Spacing="2">
+                <Button IsEnabled="{Binding CanDownload}" Command="{Binding $parent[UserControl].DataContext.DownloadEditor}" FontSize="20" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch">Download</Button>
+                <Button IsEnabled="{Binding HasEditor}" Command="{Binding $parent[UserControl].DataContext.ReportEditor}" FontSize="20" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch">Report issue</Button>
+              </StackPanel>
+            </Grid>
+          </StackPanel>
+        </StackPanel>
+      </controls:AsyncTask>
+    </StackPanel>
+  </controls:AsyncTask>
+</UserControl>

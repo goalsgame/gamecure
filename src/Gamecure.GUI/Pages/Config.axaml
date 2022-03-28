@@ -1,0 +1,71 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:config="clr-namespace:Gamecure.GUI.ViewModels.Config"
+             xmlns:controls="clr-namespace:Gamecure.GUI.Controls"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="1050"
+             x:Class="Gamecure.GUI.Pages.Config">
+  <UserControl.DataContext>
+    <config:ConfigViewModel />
+  </UserControl.DataContext>
+  <controls:AsyncTask VerticalAlignment="Stretch" Task="{Binding LoadConfigTask}">
+    <StackPanel>
+      <controls:AsyncTask Task="{Binding Workspace.WorkspaceTask}" ShowContent="True" Message="Creating all the things.." MinHeight="240">
+        <StackPanel>
+          <TextBlock FontSize="30">Plastic workspace</TextBlock>
+          <Separator Height="1" Background="White" Margin="3"/>
+          <TextBlock Foreground="#999" Margin="0 0 0 10" TextWrapping="Wrap">The workspace is where the code and art will be placed.</TextBlock>
+          <TextBox Text="{Binding Workspace.Folder}" Margin="0 0 0 2"/>
+          <Button HorizontalAlignment="Right" Command="{Binding Workspace.Browse}">Browse</Button>
+          <Button FontSize="20" Margin="0 30 0 0" HorizontalAlignment="Right" IsEnabled="{Binding Workspace.Folder, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" Command="{Binding Workspace.CreateWorkspace}">Create and Validate</Button>
+        </StackPanel>
+      </controls:AsyncTask>
+
+      <controls:AsyncTask Task="{Binding Google.SignInTask}" ShowContent="True" Message="Stealing all your stuff.." MinHeight="240">
+        <StackPanel>
+          <TextBlock FontSize="30">Sign in to Google</TextBlock>
+          <Separator Height="1" Background="White" Margin="3"/>
+          <TextBlock Foreground="#999" Margin="0 0 0 10" TextWrapping="WrapWithOverflow">You need to sign in to Google to be able to download the editor. To do this you need to provide a Google Client Secret. A browser Window will open and you'll be asked to give permissions to read the Google Storage.</TextBlock>
+          <TextBox Margin="0 0 0 2" PasswordChar="*" Text="{Binding Google.Secret}" Watermark="Google Client Secret"/>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 10 0 0">
+            <CheckBox Name="ResetGoogleCache" IsChecked="{Binding Google.Reset}"/>
+            <Label Margin="0 0 10 0" FontSize="18" Target="ResetGoogleCache" VerticalAlignment="Center">Reset</Label>
+          </StackPanel>
+          <Button FontSize="20" HorizontalAlignment="Right" IsEnabled="{Binding Google.Secret, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" Command="{Binding Google.SignInToGoogle}">Sign in</Button>
+        </StackPanel>
+      </controls:AsyncTask>
+
+      <controls:AsyncTask Task="{Binding Dependencies.DependenciesTask}" ShowContent="True" Message="Filling up your harddrive.."  MinHeight="220">
+        <StackPanel>
+          <TextBlock FontSize="30">Download dependencies</TextBlock>
+          <Separator Height="1" Background="White" Margin="3"/>
+          <TextBlock Foreground="#999" Margin="0 0 0 10" TextWrapping="WrapWithOverflow">To download the Editor from Google we need some dependencies, this step will download and validate them.</TextBlock>
+          <TextBox IsEnabled="False" Text="{Binding Dependencies.LongtailPath}"/>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 10 0 0">
+            <CheckBox Name="ResetDependencies" IsChecked="{Binding Dependencies.Reset}"/>
+            <Label Margin="0 0 10 0" FontSize="18" Target="ResetDependencies" VerticalAlignment="Center">Reset</Label>
+          </StackPanel>
+          <Button FontSize="20" HorizontalAlignment="Right" Command="{Binding Dependencies.DownloadDependencies}">Download and Validate</Button>
+        </StackPanel>
+      </controls:AsyncTask>
+      <StackPanel>
+        <TextBlock FontSize="30">Delete old editor</TextBlock>
+        <Separator Height="1" Background="White" Margin="3"/>
+        <TextBlock Foreground="#999" Margin="0 0 0 10" TextWrapping="WrapWithOverflow">When the editor is updated the old one will be removed if this setting is checked. (default is true, only disable if the delete causes issues).</TextBlock>
+        <CheckBox IsChecked="{Binding DeletePreviousEditor}" HorizontalAlignment="Right">Delete previous editor</CheckBox>
+      </StackPanel>
+      <Separator Height="1" Background="{StaticResource DarkSeparator}" Margin="0 30 0 0"/>
+      <Button Margin="0 10" FontSize="20" HorizontalAlignment="Right" Command="{Binding SaveConfig}">Save changes</Button>
+      <Separator Height="1" Background="{StaticResource LightSeparator}"/>
+      <controls:AsyncTask Task="{Binding Setup.SetupUnrealEngineTask}" ShowContent="True" Message="Doing the engine things.."  MinHeight="220" Margin="0 20">
+        <StackPanel>
+          <TextBlock FontSize="30">Setup Unreal Engine</TextBlock>
+          <Separator Height="1" Background="White" Margin="3"/>
+          <TextBlock Foreground="#999" Margin="0 0 0 10" TextWrapping="Wrap">Run the Unreal Engine Setup script (You must save the configuration changes first if the workspace has been changed)</TextBlock>
+          <Button FontSize="20" DockPanel.Dock="Bottom" HorizontalAlignment="Right" Command="{Binding Setup.RunSetup}">Setup Unreal Engine</Button>
+        </StackPanel>
+      </controls:AsyncTask>
+    </StackPanel>
+  </controls:AsyncTask>
+</UserControl>

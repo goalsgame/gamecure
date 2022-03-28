@@ -1,0 +1,46 @@
+def helpers
+
+def upload(uploadFolder, source, destinationFileName = "") {
+    sh "gsutil cp ${source} gs://${STUDIO_STORE_BUCKET_NAME}/gamecure/${uploadFolder}/${destinationFileName}"  
+}
+
+podTemplate(
+  inheritFrom: 'linux',
+  containers: [
+    containerTemplate(name: "build-container", image: "mcr.microsoft.com/dotnet/sdk:6.0-alpine", command: "sleep", args: "infinite"),
+    containerTemplate(name: "gcp-container", image: "google/cloud-sdk:362.0.0", command: "sleep", args: "99999")
+    ],
+  envVars: [envVar(key: "DOTNET_CLI_HOME", value: "/tmp/DOTNET_CLI_HOME")]) {
+  node(POD_LABEL) {
+    stage("checkout") {
+      scmVars = checkout(scm)
+      helpers = load "ci/helpers.groovy"
+      helpers.setScmVars(scmVars)
+      echo "scmVars: ${scmVars}"
+      commit = helpers.getCommit()
+      sh "echo \"${commit}\" > latest-commit.txt"
+    }
+
+    stage("test") {
+      container('build-container') {
+        // Modify this line if we add more test projects
+        sh "dotnet test tests/Gamecure.Core.Tests/Gamecure.Core.Tests.csproj"
+      }
+    }
+
+    stage("build") {
+      commitShort = helpers.getCommitShort()
+      zipFile = "Gamecure.GUI.linux.${commitShort}.zip"
+      container('build-container') {
+        sh "dotnet run --project src/Gamecure.BuildTool/ -- config -t ${GAMECURE_CONFIG_DIR}config.json -gc ${commit} -o config.json"
+        sh "dotnet run --project src/Gamecure.BuildTool/ -- build -c Release -o release/gamecure.GUI.linux -r linux --zip ${zipFile} --configfile config.json"
+      }
+      uploadFolder = helpers.getBranch()
+      container('gcp-container') {
+        upload(helpers.getBranch(),"release/${zipFile}")
+        upload(helpers.getBranch(),"release/${zipFile}", "gamecure.linux.zip")
+        upload(helpers.getBranch(), "latest-commit.txt")
+      }
+    }
+  }
+}

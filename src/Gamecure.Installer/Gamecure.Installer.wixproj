@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" InitialTargets="EnsureWixToolsetInstalled" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>3.10</ProductVersion>
+    <ProjectGuid>6eb7f422-5714-49d0-8b41-d891bba98ee5</ProjectGuid>
+    <SchemaVersion>2.0</SchemaVersion>
+    <OutputName>Gamecure Setup</OutputName>
+    <OutputType>Package</OutputType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>Debug</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Product.wxs" />
+  </ItemGroup>
+  <ItemGroup>
+    <WixExtension Include="WixUIExtension">
+      <HintPath>$(WixExtDir)\WixUIExtension.dll</HintPath>
+      <Name>WixUIExtension</Name>
+    </WixExtension>
+  </ItemGroup>
+  <Import Project="$(WixTargetsPath)" Condition=" '$(WixTargetsPath)' != '' " />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets" Condition=" '$(WixTargetsPath)' == '' AND Exists('$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets') " />
+  <Target Name="EnsureWixToolsetInstalled" Condition=" '$(WixTargetsImported)' != 'true' ">
+    <Error Text="The WiX Toolset v3.11 (or newer) build tools must be installed to build this project. To download the WiX Toolset, see http://wixtoolset.org/releases/" />
+  </Target>
+
+  <!-- If there's no path set, run the dotnet publish command on the Gamecure.GUI. This is to support builds from Visual Studio (and builds that doesn't provide a path) -->
+  <Target Name="BeforeBuild">
+    <Exec Condition=" '$(GamecurePath)' == '' " Command="dotnet publish ..\Gamecure.GUI\Gamecure.GUI.csproj -c $(Configuration) -r win-x64 --self-contained true -p:PublishSingleFile=true -p:DebugType=none" />
+  </Target>
+  <PropertyGroup>
+    <DefineConstants Condition=" '$(GamecurePath)' == '' ">$(DefineConstants);GAMECUREPATH=..\Gamecure.GUI\bin\$(Configuration)\net6.0\win-x64\publish</DefineConstants>
+    <DefineConstants Condition=" '$(GamecurePath)' != '' ">$(DefineConstants);GAMECUREPATH=$(GamecurePath)</DefineConstants>
+    <DefineConstants Condition=" '$(ConfigPath)' == '' ">$(DefineConstants);CONFIGPATH=..\..\config.json</DefineConstants>
+    <DefineConstants Condition=" '$(ConfigPath)' != '' ">$(DefineConstants);CONFIGPATH=$(ConfigPath)</DefineConstants>
+  </PropertyGroup>
+</Project>

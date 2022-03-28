@@ -1,0 +1,77 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:Gamecure.GUI.Controls"
+        x:Class="Gamecure.GUI.Controls.AsyncTask">
+  <UserControl.Styles>
+    <Style Selector="Image.Spinner">
+      <Style.Animations>
+        <Animation Duration="0:0:2"
+                   IterationCount="Infinite"
+                   Easing="SineEaseInOut">
+          <KeyFrame Cue="0%">
+            <Setter Property="RotateTransform.Angle" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="RotateTransform.Angle" Value="360"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+    <Style Selector="controls|AsyncTask">
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Panel>
+            <!-- Show spinning cog if running -->
+            <StackPanel IsVisible="{Binding Task.IsRunning, RelativeSource={RelativeSource TemplatedParent}}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Margin="0 25">
+              <Image Height="50"
+                     Width="50"
+                     Classes="Spinner">
+                <DrawingImage Drawing="{StaticResource IconCog}"/>
+              </Image>
+              <TextBlock Text="{TemplateBinding Message}"
+                         Margin="5"
+                         FontSize="10" />
+            </StackPanel>
+
+            <!-- Error occured, show message and retry button -->
+            <StackPanel IsVisible="{Binding Task.Failed, RelativeSource={RelativeSource TemplatedParent}}"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Center"
+                        Spacing="16" >
+              <TextBlock Text="{Binding Task.ErrorMessage, RelativeSource={RelativeSource TemplatedParent}}"
+                         HorizontalAlignment="Center"
+                         FontWeight="Bold"
+                         TextWrapping="Wrap"
+                         Foreground="Red" />
+              <Button Command="{Binding Task.Reset, RelativeSource={RelativeSource TemplatedParent}}"
+                      HorizontalAlignment="Center">
+                Retry
+              </Button>
+            </StackPanel>
+
+            <!-- Show the content if the task is finished or if the ShowContent is set to true-->
+            <ContentPresenter Content="{TemplateBinding Content}"
+                              HorizontalAlignment="Stretch"
+                              VerticalAlignment="Stretch">
+              <ContentPresenter.IsVisible>
+                <MultiBinding Converter="{x:Static BoolConverters.Or}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}"
+                           Path="Task.IsCompleted"/>
+                  <MultiBinding Converter="{x:Static BoolConverters.And}">
+                    <Binding RelativeSource="{RelativeSource TemplatedParent}"
+                             Path="ShowContent"/>
+                    <Binding RelativeSource="{RelativeSource TemplatedParent}"
+                             Path="Task.IsWaiting"/>
+                  </MultiBinding>
+                </MultiBinding>
+              </ContentPresenter.IsVisible>
+            </ContentPresenter>
+          </Panel>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+  </UserControl.Styles>
+</UserControl>

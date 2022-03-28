@@ -1,0 +1,17 @@
+.vs/
+.git/
+
+config.json
+
+
+/**/[Dd]ebug/
+/**/[Rr]elease/
+/**/bin/
+/**/obj/
+
+*.user
+
+.idea/
+*.iml
+
+UpgradeLog*.htm*
