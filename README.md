@@ -1,12 +1,14 @@
 
-# Gamecure 
+# GAMECURE
 
 ## Contributions
-We welcome contributions to this project. Please join [GOALS discord server](https://discord.gg/GOALS),
-head to `#contribute` under `GOALS/OPEN-SOURCE` and we'll try to help out.
+We welcome contributions to this project. Just fork the repo, make your changes
+and submit a pull request and we'll get back to you. For more detailed instructions
+head on over to GitHubs [Fork a repo](https://docs.github.com/en/get-started/quickstart/fork-a-repo])
+docs.
 
 ## License
-The Gamecure project is dual-licensed.
+The GAMECURE project is dual-licensed.
 
 * [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0).
 * [MIT license](https://opensource.org/licenses/MIT).
@@ -17,7 +19,6 @@ As a user/licensee you choose which license to adhere to.
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall
 be dual licensed as above, without any additional terms or conditions.
-
 
 ## Development - (work in progress)
 ### WIX
