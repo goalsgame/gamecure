@@ -64,7 +64,7 @@ var result = await new CommandList<Context>("dotnet run --project src/Gamecure.B
         })
         .WithOption(new Option<ConfigContext>("force")
         {
-            Description = "Overwrite the config file if it alreayd exists",
+            Description = "Overwrite the config file if it already exists",
             Alias = "f",
             RequiresArguments = false,
             Callback = (config, _) => config with { Overwrite = true }
