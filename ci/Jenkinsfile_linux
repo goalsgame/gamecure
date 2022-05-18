@@ -1,5 +1,5 @@
 def helpers
-
+@Library(value = 'goals-lib', changelog = false) _
 def upload(uploadFolder, source, destinationFileName = "") {
     sh "gsutil cp ${source} gs://${STUDIO_STORE_BUCKET_NAME}/gamecure/${uploadFolder}/${destinationFileName}"  
 }
@@ -14,7 +14,7 @@ podTemplate(
   node(POD_LABEL) {
     stage("checkout") {
       scmVars = checkout(scm)
-      helpers = load "ci/helpers.groovy"
+      helpers = gamecureHelpers
       helpers.setScmVars(scmVars)
       echo "scmVars: ${scmVars}"
       commit = helpers.getCommit()
