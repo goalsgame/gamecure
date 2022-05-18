@@ -16,12 +16,21 @@
   <controls:AsyncTask Task="{Binding PreReqTask}" Message="Making sure you didn't mess up.." RunOnRetry="True">
     <StackPanel>
       <Grid ColumnDefinitions="* Auto Auto" >
-        <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="10 0" VerticalAlignment="Center" IsVisible="{Binding IsVersionMismatch}">
-          <Image Height="20" Margin="10 0">
-            <DrawingImage Drawing="{StaticResource IconExclamation}"/>
-          </Image>
-          <TextBlock Text="There's a new version of the editor!"/>
+        <StackPanel Grid.Column="0" Margin="10" Spacing="10">
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center" IsVisible="{Binding IsVersionMismatch}">
+            <Image Height="20" Margin="10 0">
+              <DrawingImage Drawing="{StaticResource IconExclamation}"/>
+            </Image>
+            <TextBlock Text="There's a new version of the editor!"/>
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center" IsVisible="{Binding NewGamecureVersion}">
+            <Image Height="20" Margin="10 0">
+              <DrawingImage Drawing="{StaticResource IconExclamationRed}"/>
+            </Image>
+            <TextBlock Text="There's a new version of Gamecure! "/>
+          </StackPanel>
         </StackPanel>
+
         <Button Grid.Column="1" Margin="5" FontSize="20" Command="{Binding LaunchGluon}">Launch Gluon</Button>
         <Button Grid.Column="2" Margin="5" FontSize="20" Command="{Binding LaunchEditor}" IsEnabled="{Binding !DownloadEditorTask.IsRunning}">Launch Editor</Button>
       </Grid>
