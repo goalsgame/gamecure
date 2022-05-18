@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Threading;
@@ -61,18 +62,26 @@ internal class EditorSyncViewModel : ViewModelBase
         set => SetProperty(ref _isVersionMismatch, value);
     }
 
+    private bool _newGamecureVersion;
+    public bool NewGamecureVersion
+    {
+        get => _newGamecureVersion;
+        set => SetProperty(ref _newGamecureVersion, value);
+    }
+
     public EditorSyncViewModel()
     : this(
         Locator.Current.GetRequiredService<IConfigurationService>(),
         Locator.Current.GetRequiredService<IPlasticService>(),
         Locator.Current.GetRequiredService<IGoogleAuthService>(),
         Locator.Current.GetRequiredService<IDependenciesService>(),
-        Locator.Current.GetRequiredService<IEditorService>()
+        Locator.Current.GetRequiredService<IEditorService>(),
+        Locator.Current.GetRequiredService<IGamecureVersion>()
         )
     {
     }
 
-    public EditorSyncViewModel(IConfigurationService configurationService, IPlasticService plasticService, IGoogleAuthService googleAuthService, IDependenciesService dependenciesService, IEditorService editorService)
+    public EditorSyncViewModel(IConfigurationService configurationService, IPlasticService plasticService, IGoogleAuthService googleAuthService, IDependenciesService dependenciesService, IEditorService editorService, IGamecureVersion gamecureVersion)
     {
         {
             // NOTE(Jens): this will get out of control very fast if we decide to have more things we can order by or sort. Can we create something that is easier to use and setup?
@@ -213,8 +222,24 @@ internal class EditorSyncViewModel : ViewModelBase
                 await ApplicationLauncher.LaunchUnrealEditor(config.Workspace, TimeSpan.FromSeconds(2));
             }
         });
+
+        _versionPollTask = Task.Run(async () =>
+        {
+            if (Design.IsDesignMode)
+            {
+                return;
+            }
+            
+            // Run until it crashes or the app is closed.
+            while (true)
+            {
+                NewGamecureVersion = await gamecureVersion.HasNewVersion();
+                await Task.Delay(TimeSpan.FromMinutes(10));
+            }
+        });
     }
 
+    private Task _versionPollTask;
     private static Func<ChangesetViewModel, bool> BuildBranchFilter((string, bool) args)
     {
         var (filterText, mainBranchOnly) = args;

@@ -13,5 +13,6 @@ internal class Registry
             .RegisterLazySingleton<IDependenciesService>(resolver => new DependenciesService(resolver.GetRequiredService<IConfigurationService>()))
             .RegisterLazySingleton<ILogFileService>(_ => new LogFileService())
             .RegisterLazySingleton<IEditorService>(resolver => new EditorService(resolver.GetRequiredService<IConfigurationService>(), resolver.GetRequiredService<IGoogleAuthService>()))
+            .RegisterLazySingleton<IGamecureVersion>(resolver => new GamecureVersion(resolver.GetRequiredService<IConfigurationService>()))
         ;
 }
