@@ -38,9 +38,14 @@ public class GetEditorVersions : IMiddleware<EditorVersionsContext>
             return context with { Failed = true, Reason = "Items was null, is the url correct?" };
         }
 
-        Logger.Trace($"Found {storageList.Items.Length} versions.");
+        var versionIndexFiles = storageList
+            .Items
+            .Where(v => v.Name.EndsWith(".lvi"))
+            .ToArray();
+
+        Logger.Trace($"Found {versionIndexFiles.Length} versions.");
         List<EditorVersion> versions = new();
-        foreach (var item in storageList.Items)
+        foreach (var item in versionIndexFiles)
         {
             if (TryParse(item.Name, item.Created, context.Prefix!, out var editor))
             {
