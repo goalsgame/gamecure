@@ -12,8 +12,15 @@ def getCommit() {
     return scmVarsHolder[0].GIT_COMMIT
 }
 
-def getCommitShort() {
-    return getCommit().substring(0, 8)
+def getshortCommit() {
+    return getCommit().substring(0, 7)
+}
+
+def getBuildId() {
+    def timestamp = new Date(currentBuild.timeInMillis).format("yyMMdd-HHmm")
+    def branch = scmVars.GIT_BRANCH.replace("/", "-")
+    def shortHash = getshortCommit()
+    return "${branch}_${timestamp}_${shortHash}"
 }
 
 def buildStarted( String name) {

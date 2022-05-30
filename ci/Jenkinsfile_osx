@@ -30,7 +30,7 @@ podTemplate(
     }
 
     stage("build") {
-      commitShort = helpers.getCommitShort()
+      commitShort = helpers.getshortCommit()
       zipFile = "Gamecure.GUI.osx.${commitShort}.zip"
       container('build-container') {
         sh "dotnet run --project src/Gamecure.BuildTool/ -- config -t ${GAMECURE_CONFIG_DIR}config.json -gc ${commit} -o config.json"
