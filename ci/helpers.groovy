@@ -16,5 +16,29 @@ def getCommitShort() {
     return getCommit().substring(0, 8)
 }
 
+def buildStarted( String name) {
+	def map = getMap(name)
+	argoWorkflowHelper.triggerWorkflow("build-started-workflow", scmVars.GIT_BRANCH, map)
+ }
+
+def buildFailed( String name) {
+	def map = getMap(name)
+	argoWorkflowHelper.triggerWorkflow("build-failed-workflow", scmVars.GIT_BRANCH, map)
+ }
+
+def buildSuccess(String name, List services = null, String namespace = "", String platform = "", String channel = "") {
+	def map = getMap(name, services, namespace)
+	argoWorkflowHelper.triggerWorkflow("build-success-workflow-template", scmVars.GIT_BRANCH, map)
+ }
+ 
+def getbuildDescription(String name, List services = null, String namespace = ""){
+	return name
+ }
+// maps key = variable name and value = data in variable (to get both name/value from the variable)
+def getMap(String name, List services = null, String namespace = ""){
+	def channel="",platform="" //being used in argo workflow so pass empty values
+    return [name: name, channel: channel, platform: platform,"buildDescription": getbuildDescription(name, services, namespace),
+			"version": getBuildId(), "branch": scmVars.GIT_BRANCH, "commit": getshortCommit(), "author": getAuthor(), "publishEvent": "false"]
+ }
 // Needed to be able to import into Jenkinsfiles
 return this

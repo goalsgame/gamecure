@@ -13,9 +13,10 @@ podTemplate(
       name: "build-container", image: "europe-west1-docker.pkg.dev/goals-build/pipeline/windows-build:1", args: "Start-Sleep 99999")
   ]) {
   node(POD_LABEL) {
+  try{
     stage("checkout") {
       scmVars = checkout(scm)
-      helpers = gamecureHelpers
+      helpers = load "ci/helpers.groovy"
       helpers.setScmVars(scmVars)
       echo "scmVars: ${scmVars}"
       commit = helpers.getCommit()
@@ -48,6 +49,14 @@ podTemplate(
       upload(helpers.getBranch(), "installer/*.msi")
       // Finally upload the commit
       upload(helpers.getBranch(), "latest-commit.txt")
-    }
+     }
+	}
+	finally {
+      if ("SUCCESS".equalsIgnoreCase(currentBuild.currentResult)) {
+	    helpers.buildSuccess("gamecure [Windows]")
+       } else {
+       helpers.buildFailed("gamecure [Windows]")
+      }
+    }	
   }
 }

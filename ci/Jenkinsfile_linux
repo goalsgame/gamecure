@@ -12,9 +12,10 @@ podTemplate(
     ],
   envVars: [envVar(key: "DOTNET_CLI_HOME", value: "/tmp/DOTNET_CLI_HOME")]) {
   node(POD_LABEL) {
+  try{
     stage("checkout") {
       scmVars = checkout(scm)
-      helpers = gamecureHelpers
+      helpers = load "ci/helpers.groovy"
       helpers.setScmVars(scmVars)
       echo "scmVars: ${scmVars}"
       commit = helpers.getCommit()
@@ -40,6 +41,14 @@ podTemplate(
         upload(helpers.getBranch(),"release/${zipFile}")
         upload(helpers.getBranch(),"release/${zipFile}", "gamecure.linux.zip")
         upload(helpers.getBranch(), "latest-commit.txt")
+      }
+     }
+	}
+	finally {
+      if ("SUCCESS".equalsIgnoreCase(currentBuild.currentResult)) {
+	    helpers.buildSuccess("gamecure [Linux]")
+       } else {
+       helpers.buildFailed("gamecure [Linux]")
       }
     }
   }
