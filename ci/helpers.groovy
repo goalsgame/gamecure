@@ -23,6 +23,10 @@ def getBuildId() {
     return "${branch}_${timestamp}_${shortHash}"
 }
 
+def getAuthor() {
+    return sh(returnStdout: true, script: "git log -1 --pretty=format:'%ae'").trim()
+}
+
 def buildStarted( String name) {
 	def map = getMap(name)
 	argoWorkflowHelper.triggerWorkflow("build-started-workflow", scmVars.GIT_BRANCH, map)
