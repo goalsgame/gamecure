@@ -80,4 +80,4 @@ Template can be found in the root folder
 }
 ```
 #### CI/CD implementation
-The out of the box CI/CD Jenkins implementation will not work, you will have to comment out `argoWorkflowHelper.triggerWorkflow(....)` sections in helpers.groovy file to get it to work.
+The out of the box CI/CD Jenkins implementation will not work, you will have to comment out `argoWorkflowHelper.triggerWorkflow(....)` sections in helpers.groovy file and the `@Library(...)` in the JenkinsFiles to get it to work.
