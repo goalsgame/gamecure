@@ -1,5 +1,4 @@
 def helpers
-@Library(value = 'goals-lib', changelog = false) _
 def upload(uploadFolder, source, destinationFileName = "") {
 	gsUtilLocation = "\"~/google-cloud-sdk/bin/gsutil.cmd\""
 	arguments = "\"cp\",\"${source}\",\"gs://${STUDIO_STORE_BUCKET_NAME}/gamecure/${uploadFolder}/${destinationFileName}\""
