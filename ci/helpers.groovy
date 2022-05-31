@@ -1,3 +1,4 @@
+@Library(value = 'goals-lib', changelog = false) _
 scmVarsHolder = []
 
 def setScmVars(scmVars) {
