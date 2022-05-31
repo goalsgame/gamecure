@@ -24,7 +24,10 @@ def getBuildId() {
 }
 
 def getAuthor() {
-	return sh(returnStdout: true, script: "git log -1 --pretty=format:'%ae'").trim()
+	if (isUnix()) 
+		return sh(returnStdout: true, script: "git log -1 --pretty=format:'%ae'").trim()
+	else
+		return bat(returnStdout: true, script: "git log -1 --pretty=format:'%ae'").trim()
 }
 
 def buildStarted( String name) {
