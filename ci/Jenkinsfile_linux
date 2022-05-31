@@ -1,4 +1,5 @@
 def helpers
+@Library(value = 'goals-lib', changelog = false) _
 def upload(uploadFolder, source, destinationFileName = "") {
 	sh "gsutil cp ${source} gs://${STUDIO_STORE_BUCKET_NAME}/gamecure/${uploadFolder}/${destinationFileName}"
 }
