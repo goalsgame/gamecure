@@ -27,7 +27,7 @@ def getAuthor() {
 	if (isUnix()) 
 		return sh(returnStdout: true, script: "git log -1 --pretty=format:'%ae'").trim()
 	else
-		return bat(returnStdout: true, script: "git log -1 --pretty=format:'%ae'").trim()
+		return bat(returnStdout: true, script: "git log -1 --pretty=format:'%%ae'").trim()
 }
 
 def buildStarted( String name) {
