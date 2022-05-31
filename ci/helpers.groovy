@@ -48,6 +48,10 @@ def getbuildDescription(String name, List services = null, String namespace = ""
 }
 // maps key = variable name and value = data in variable (to get both name/value from the variable)
 def getMap(String name, List services = null, String namespace = ""){
+echo "inside helper map"
+	def  map = ["buildId": getBuildId(), namespace: namespace, "deployServices": "true" ] 
+echo "map"	
+echo map	
 	def channel="",platform="" //being used in argo workflow so pass empty values
 	return [name: name, channel: channel, platform: platform,"buildDescription": getbuildDescription(name, services, namespace),
 		"version": getBuildId(), "branch": scmVars.GIT_BRANCH, "commit": getshortCommit(), "author": getAuthor(), "publishEvent": "false"]
