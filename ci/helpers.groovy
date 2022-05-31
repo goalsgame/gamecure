@@ -28,6 +28,7 @@ def getAuthor() {
 }
 
 def buildStarted( String name) {
+	echo "inside helper"
     def map = getMap(name)
 	argoWorkflowHelper.triggerWorkflow("build-started-workflow", scmVars.GIT_BRANCH, map)
 }

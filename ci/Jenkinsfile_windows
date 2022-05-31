@@ -16,11 +16,12 @@ podTemplate(
 				try{
 					stage("checkout") {
 						scmVars = checkout(scm)
-						helpers = githubHelpers //load "ci/helpers.groovy"
+						helpers = load "ci/helpers.groovy"
 						helpers.setScmVars(scmVars)
 						echo "scmVars: ${scmVars}"
 						commit = helpers.getCommit()
 						pwsh "\"${commit}\" > latest-commit.txt"
+						echo "here"
 						helpers.buildStarted("gamelauncher [Windows]")
 					}
 
