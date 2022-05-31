@@ -21,6 +21,7 @@ podTemplate(
 						echo "scmVars: ${scmVars}"
 						commit = helpers.getCommit()
 						pwsh "\"${commit}\" > latest-commit.txt"
+						helpers.buildStarted("gamelauncher [Windows]")
 					}
 
 					stage("test") {
