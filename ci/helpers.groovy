@@ -48,10 +48,9 @@ def getbuildDescription(String name, List services = null, String namespace = ""
 // maps key = variable name and value = data in variable (to get both name/value from the variable)
 def getMap(String name, List services = null, String namespace = ""){
 	def channel="",platform="" //being used in argo workflow so pass empty values
-	echo getbuildDescription(name, services, namespace)
-	echo getshortCommit()
-	echo "here"
-	def map = [name: name, channel: channel, platform: platform,"buildDescription": getbuildDescription(name, services, namespace)]
+	echo here
+	def map = [name: name, channel: channel, platform: platform,"buildDescription": getbuildDescription(name, services, namespace),
+		"version": getBuildId()]
 	println map	
 	return [name: name, channel: channel, platform: platform,"buildDescription": getbuildDescription(name, services, namespace),
 		"version": getBuildId(), "branch": scmVarsHolder.GIT_BRANCH, "commit": getshortCommit(), "author": getAuthor(), "publishEvent": "false"]
