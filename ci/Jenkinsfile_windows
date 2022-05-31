@@ -22,7 +22,7 @@ podTemplate(
 						commit = helpers.getCommit()
 						pwsh "\"${commit}\" > latest-commit.txt"
 						echo "here"
-						helpers.buildStarted("gamelauncher [Windows]")
+						helpers.buildStarted("gamecure [Windows]")
 					}
 
 					stage("test") {

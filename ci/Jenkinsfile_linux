@@ -22,7 +22,7 @@ podTemplate(
 						echo "scmVars: ${scmVars}"
 						commit = helpers.getCommit()
 						sh "echo \"${commit}\" > latest-commit.txt"
-						helpers.buildStarted("gamelauncher [Linux]")
+						helpers.buildStarted("gamecure [Linux]")
 					}
 
 					stage("test") {
