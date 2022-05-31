@@ -1,53 +1,61 @@
 def helpers
-
 def upload(uploadFolder, source, destinationFileName = "") {
-    gsUtilLocation = "\"~/google-cloud-sdk/bin/gsutil.cmd\""
-    arguments = "\"cp\",\"${source}\",\"gs://${STUDIO_STORE_BUCKET_NAME}/gamecure/${uploadFolder}/${destinationFileName}\""
-    pwsh "Start-Process -FilePath ${gsUtilLocation} -ArgumentList ${arguments} -NoNewWindow -Wait -PassThru"
+	gsUtilLocation = "\"~/google-cloud-sdk/bin/gsutil.cmd\""
+	arguments = "\"cp\",\"${source}\",\"gs://${STUDIO_STORE_BUCKET_NAME}/gamecure/${uploadFolder}/${destinationFileName}\""
+	pwsh "Start-Process -FilePath ${gsUtilLocation} -ArgumentList ${arguments} -NoNewWindow -Wait -PassThru"
 }
 
 podTemplate(
-  inheritFrom: 'windows',
-  containers: [
-    containerTemplate(
-      name: "build-container", image: "europe-west1-docker.pkg.dev/goals-build/pipeline/windows-build:1", args: "Start-Sleep 99999")
-  ]) {
-  node(POD_LABEL) {
-    stage("checkout") {
-      scmVars = checkout(scm)
-      helpers = load "ci/helpers.groovy"
-      helpers.setScmVars(scmVars)
-      echo "scmVars: ${scmVars}"
-      commit = helpers.getCommit()
-      pwsh "\"${commit}\" > latest-commit.txt"
-    }
+		inheritFrom: 'windows',
+		containers: [
+			containerTemplate(
+			name: "build-container", image: "europe-west1-docker.pkg.dev/goals-build/pipeline/windows-build:1", args: "Start-Sleep 99999")
+		]) {
+			node(POD_LABEL) {
+				try{
+					stage("checkout") {
+						scmVars = checkout(scm)
+						helpers = load "ci/helpers.groovy"
+						helpers.setScmVars(scmVars)
+						echo "scmVars: ${scmVars}"
+						commit = helpers.getCommit()
+						pwsh "\"${commit}\" > latest-commit.txt"
+					}
 
-    stage("test") {
-      container('build-container') {
-        // Modify this line if we add more test projects
-        powershell "dotnet test tests/Gamecure.Core.Tests/Gamecure.Core.Tests.csproj"
-      }
-    }
+					stage("test") {
+						container('build-container') {
+							// Modify this line if we add more test projects
+							powershell "dotnet test tests/Gamecure.Core.Tests/Gamecure.Core.Tests.csproj"
+						}
+					}
 
-    stage("build") {
-        commitShort = helpers.getCommitShort()
-        zipFile = "Gamecure.GUI.win.${commitShort}.zip"
-        container('build-container') {
-            powershell "dotnet run --project src/Gamecure.BuildTool/ -- config -t ${GAMECURE_CONFIG_DIR}config.json -gc ${commit} -o config.json"
-            powershell "dotnet run --project src/Gamecure.BuildTool/ -- build -c Release -o release/gamecure.GUI.win -r win --zip ${zipFile} --configfile config.json"
-        }
-        upload(helpers.getBranch(), "release/${zipFile}", zipFile)
-    }
+					stage("build") {
+						commitShort = helpers.getshortCommit()
+						zipFile = "Gamecure.GUI.win.${commitShort}.zip"
+						container('build-container') {
+							powershell "dotnet run --project src/Gamecure.BuildTool/ -- config -t ${GAMECURE_CONFIG_DIR}config.json -gc ${commit} -o config.json"
+							powershell "dotnet run --project src/Gamecure.BuildTool/ -- build -c Release -o release/gamecure.GUI.win -r win --zip ${zipFile} --configfile config.json"
+						}
+						upload(helpers.getBranch(), "release/${zipFile}", zipFile)
+					}
 
-    stage("win installer") {
-      commitShort = helpers.getCommitShort()
-      container('build-container') {
-        powershell "dotnet run --project src/Gamecure.BuildTool/ -- config -t ${GAMECURE_CONFIG_DIR}config.json -gc ${commit} -o config.json -f"
-        powershell "dotnet run --project src/Gamecure.BuildTool/ -- build -c Release -o installer/ -r win -p installer --configfile config.json"
-      }
-      upload(helpers.getBranch(), "installer/*.msi")
-      // Finally upload the commit
-      upload(helpers.getBranch(), "latest-commit.txt")
-    }
-  }
-}
+					stage("win installer") {
+						commitShort = helpers.getshortCommit()
+						container('build-container') {
+							powershell "dotnet run --project src/Gamecure.BuildTool/ -- config -t ${GAMECURE_CONFIG_DIR}config.json -gc ${commit} -o config.json -f"
+							powershell "dotnet run --project src/Gamecure.BuildTool/ -- build -c Release -o installer/ -r win -p installer --configfile config.json"
+						}
+						upload(helpers.getBranch(), "installer/*.msi")
+						// Finally upload the commit
+						upload(helpers.getBranch(), "latest-commit.txt")
+					}
+				}
+				finally {
+					if ("SUCCESS".equalsIgnoreCase(currentBuild.currentResult)) {
+						helpers.buildSuccess("gamecure [Windows]")
+					} else {
+						helpers.buildFailed("gamecure [Windows]")
+					}
+				}
+			}
+		}
