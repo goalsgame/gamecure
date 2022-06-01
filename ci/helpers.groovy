@@ -27,25 +27,29 @@ def getAuthor() {
 	if (isUnix()) 
 		return sh(returnStdout: true, script: "git log -1 --pretty=format:'%ae'").trim()
 	else
-		return bat(returnStdout: true, script: "git log -1 --pretty=format:'%%ae'").trim()
+		return bat(returnStdout: true, script: "git log -1 --pretty=format:'%%ae'").trim().readLines().drop(1).join(" ")
 }
 
-def buildStarted( String name) {
+def buildStarted( String name, String platform = "") {
     def map = getMap(name)
 	argoWorkflowHelper.triggerWorkflow("build-started-workflow", scmVarsHolder.GIT_BRANCH, map)
 }
 
-def buildFailed( String name) {
+def buildFailed( String name, String platform = "") {
 	def map = getMap(name)
 	argoWorkflowHelper.triggerWorkflow("build-failed-workflow", scmVarsHolder.GIT_BRANCH, map)
 }
 
 def buildSuccess(String name, List services = null, String namespace = "", String platform = "", String channel = "") {
 	def map = getMap(name, services, namespace)
+	echo map
 	argoWorkflowHelper.triggerWorkflow("build-success-workflow-template", scmVarsHolder.GIT_BRANCH, map)
 }
 
-def getbuildDescription(String name, List services = null, String namespace = ""){
+def getbuildDescription(String name, List services = null, String namespace = "", String platform = ""){
+	if (platform)
+	return name +" ["+ platform +"]"
+	else
 	return name
 }
 // maps key = variable name and value = data in variable (to get both name/value from the variable)
