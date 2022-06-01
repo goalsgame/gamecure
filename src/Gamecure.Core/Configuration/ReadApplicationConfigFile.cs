@@ -1,4 +1,4 @@
-﻿using Gamecure.Core.Common;
+using Gamecure.Core.Common;
 using Gamecure.Core.Common.Logging;
 using Gamecure.Core.Pipeline;
 
@@ -7,7 +7,7 @@ namespace Gamecure.Core.Configuration;
 public record JiraConfig(string Url, int ProjectId, int IssueType, int Priority);
 public record PlasticConfig(string Repository, string[] Includes, string[] Excludes);
 public record LongtailConfig(string Version);
-public record AppConfig(string ClientId, string Project, string Scope, string TokenUrl, string AuthUrl, string GitCommit, string Container, PlasticConfig Plastic, LongtailConfig Longtail, JiraConfig Jira);
+public record AppConfig(string ClientId, string Project, string Scope, string TokenUrl, string AuthUrl, string GitCommit, string Container, PlasticConfig Plastic, LongtailConfig Longtail, JiraConfig? Jira);
 
 public record AppConfigContext(string ConfigFilename) : Context
 {

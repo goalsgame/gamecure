@@ -192,17 +192,25 @@ internal class EditorSyncViewModel : ViewModelBase
             var appConfig = await configurationService.GetAppConfig() ?? throw new InvalidOperationException("Could not get the AppConfig");
 
             var jira = appConfig.Jira;
-            var querystring = new Querystring()
-                .Param("pid", jira.ProjectId)
-                .Param("issuetype", jira.IssueType)
-                .Param("summary", $"Bug in editor {version.Changeset}: *** ADD BUG TITLE HERE ***")
-                .Param("description", "Summary of the bug:\n\nHow to reproduce the bug:\n")
-                .Param("priority", jira.Priority);
 
-            var result = await ApplicationLauncher.LaunchBrowser(jira.Url, querystring);
-            if (!result)
+            if (jira is not null)
             {
-                Logger.Error("Browser was closed immediately");
+                var querystring = new Querystring()
+                    .Param("pid", jira.ProjectId)
+                    .Param("issuetype", jira.IssueType)
+                    .Param("summary", $"Bug in editor {version.Changeset}: *** ADD BUG TITLE HERE ***")
+                    .Param("description", "Summary of the bug:\n\nHow to reproduce the bug:\n")
+                    .Param("priority", jira.Priority);
+
+                var result = await ApplicationLauncher.LaunchBrowser(jira.Url, querystring);
+                if (!result)
+                {
+                    Logger.Error("Browser was closed immediately");
+                }
+            }
+            else
+            {
+                Logger.Error("There is no configured reporting method");
             }
         });
 
@@ -229,7 +237,7 @@ internal class EditorSyncViewModel : ViewModelBase
             {
                 return;
             }
-            
+
             // Run until it crashes or the app is closed.
             while (true)
             {
