@@ -51,8 +51,8 @@ def getbuildDescription(String name, List services = null, String namespace = ""
 // maps key = variable name and value = data in variable (to get both name/value from the variable)
 def getMap(String name, List services = null, String namespace = ""){
 	def channel="",platform="" //being used in argo workflow so pass empty values
-	 String namestr = name.split(' ');
-	return [name: namestr, channel: channel, platform: platform,"buildDescription": getbuildDescription(name, services, namespace),
+	def namestr = name.split(' ');
+	return [name: namestr[0], channel: channel, platform: platform,"buildDescription": getbuildDescription(name, services, namespace),
 		"version": getBuildId(), "branch": scmVarsHolder.GIT_BRANCH, "commit": getshortCommit(), "author": getAuthor(), "publishEvent": "false"]
 }
 // Needed to be able to import into Jenkinsfiles
