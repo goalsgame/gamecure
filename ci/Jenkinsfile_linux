@@ -22,7 +22,7 @@ podTemplate(
 						echo "scmVars: ${scmVars}"
 						commit = helpers.getCommit()
 						sh "echo \"${commit}\" > latest-commit.txt"
-						helpers.buildStarted("gamecure","Linux")
+						helpers.buildStarted("gamecure [Linux]")
 					}
 
 					stage("test") {
@@ -49,9 +49,9 @@ podTemplate(
 				}
 				finally {
 					if ("SUCCESS".equalsIgnoreCase(currentBuild.currentResult)) {
-						helpers.buildSuccess("gamecure","Linux")
+						helpers.buildSuccess("gamecure [Linux]")
 					} else {
-						helpers.buildFailed("gamecure","Linux")
+						helpers.buildFailed("gamecure [Linux]")
 					}
 				}
 			}
