@@ -7,6 +7,8 @@ public class CopyEditor : IMiddleware<DownloadEditorContext>
 {
     public async Task<DownloadEditorContext> OnInvoke(DownloadEditorContext context, ContextDelegate<DownloadEditorContext> next)
     {
+        const string LongtailFilePrefix = ".longtail";
+
         var destination = context.Workspace;
         var source = context.EditorPath;
 
@@ -17,6 +19,12 @@ public class CopyEditor : IMiddleware<DownloadEditorContext>
             // Copy all files
             foreach (var filePath in Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories))
             {
+                var fileName = Path.GetFileName(filePath);
+                if (fileName.StartsWith(LongtailFilePrefix, true, null))
+                {
+                    Logger.Trace($"Ignoring file {filePath}");
+                    continue;
+                }
                 var relativePath = Path.GetRelativePath(source, filePath);
                 var destinationFilePath = Path.Combine(destination, relativePath);
                 File.Copy(filePath, destinationFilePath, overwrite: true);
