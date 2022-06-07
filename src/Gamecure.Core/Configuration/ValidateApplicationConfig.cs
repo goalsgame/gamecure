@@ -37,7 +37,7 @@ public class ValidateApplicationConfig : IMiddleware<AppConfigContext>
 
         if (context.Configuration.Jira is not null && string.IsNullOrWhiteSpace(context.Configuration.Jira.Url))
         {
-            return context with { Failed = true, Reason = $"Jira is enabled, but the required field {nameof(AppConfig.Jira.Url)} has not been set." };
+            return context with { Failed = true, Reason = $"Jira has been configured, but the required field {nameof(AppConfig.Jira.Url)} has not been set." };
         }
 
         return await next(context);
