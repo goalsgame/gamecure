@@ -35,7 +35,7 @@
         "version": "v0.3.0"
     },
     "jira": {
-        "url":"",
+        "url": "",
         "project_id": 0,
         "issue_type": 0,
         "priority": 0

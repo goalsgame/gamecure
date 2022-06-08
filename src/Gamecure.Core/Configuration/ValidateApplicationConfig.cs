@@ -1,4 +1,4 @@
-﻿using Gamecure.Core.Pipeline;
+using Gamecure.Core.Pipeline;
 
 namespace Gamecure.Core.Configuration;
 public class ValidateApplicationConfig : IMiddleware<AppConfigContext>
@@ -34,9 +34,10 @@ public class ValidateApplicationConfig : IMiddleware<AppConfigContext>
         {
             return context with { Failed = true, Reason = $"{nameof(AppConfig.Container)} has not been set." };
         }
-        if (string.IsNullOrWhiteSpace(context.Configuration.Jira.Url))
+
+        if (context.Configuration.Jira is not null && string.IsNullOrWhiteSpace(context.Configuration.Jira.Url))
         {
-            return context with { Failed = true, Reason = $"{nameof(AppConfig.Jira.Url)} has not been set." };
+            return context with { Failed = true, Reason = $"Jira has been configured, but the required field {nameof(AppConfig.Jira.Url)} has not been set." };
         }
 
         return await next(context);
