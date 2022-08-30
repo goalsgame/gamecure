@@ -123,9 +123,11 @@ public class ProcessRunner
             return Path.GetFullPath(fileName);
         }
 
+        var executableNames =new [] { fileName, Path.ChangeExtension(fileName, "exe") };
+
         var fullPath = Environment.GetEnvironmentVariable("PATH")?
             .Split(Path.PathSeparator)
-            .Select(path => Path.Combine(path, fileName))
+            .SelectMany(path => executableNames.Select(name=>Path.Combine(path, name)))
             .FirstOrDefault(File.Exists);
         
         if (fullPath == null)
