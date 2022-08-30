@@ -10,7 +10,21 @@ public class ProcessRunner
     public static async ValueTask<ProcessResult> Run(string command, string arguments, string workingDirectory, TimeSpan timeout, KeyValuePair<string, string>[]? environmentVariables = null, bool createNewWindow = false, bool redirectOutput = true)
     {
         Logger.Trace($"Run command: {command} {arguments}");
-        var startInfo = new ProcessStartInfo(command, arguments)
+        
+        // Verify that the command can be resolved to an executable
+        var fullPath = GetFullPath(command);
+        if (fullPath != null)
+        {
+            Logger.Trace($"Resolved command '{command}' to executable '{fullPath}'");
+        }
+        else
+        {
+            var reason = $"Unable to find executable '{command}'";
+            Logger.Error(reason);
+            return new ProcessResult { Success = false, Reason = reason };
+        }
+        
+        var startInfo = new ProcessStartInfo(fullPath, arguments)
         {
             WorkingDirectory = workingDirectory,
             RedirectStandardOutput = redirectOutput,
@@ -100,5 +114,25 @@ public class ProcessRunner
             StdErr = stderr.ToArray(),
             StdOut = stdout.ToArray()
         };
+    }
+    
+    private static string? GetFullPath(string fileName)
+    {
+        if (File.Exists(fileName))
+        {
+            return Path.GetFullPath(fileName);
+        }
+
+        var fullPath = Environment.GetEnvironmentVariable("PATH")?
+            .Split(Path.PathSeparator)
+            .Select(path => Path.Combine(path, fileName))
+            .FirstOrDefault(File.Exists);
+        
+        if (fullPath == null)
+        {
+            Logger.Warning($"Unable to find executable `{fileName}` in the search path");
+        }
+
+        return fullPath;
     }
 }
