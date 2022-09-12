@@ -12,7 +12,7 @@ public class GetEditorVersions : IMiddleware<EditorVersionsContext>
     private static readonly HttpClient _client = new();
     public async Task<EditorVersionsContext> OnInvoke(EditorVersionsContext context, ContextDelegate<EditorVersionsContext> next)
     {
-        var requestMessage = new HttpRequestMessage(HttpMethod.Get, context.IndexUrl)
+        var requestMessage = new HttpRequestMessage(HttpMethod.Get, context.IndexUrl+"&maxResults=2000")
         {
             Headers = { Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken) }
         };
