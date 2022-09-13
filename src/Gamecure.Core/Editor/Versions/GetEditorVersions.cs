@@ -49,7 +49,7 @@ public class GetEditorVersions : IMiddleware<EditorVersionsContext>
                     .Where(v => v.Name.EndsWith(".lvi"))
                     .ToArray();
 
-            Logger.Trace($"Scanning batch of {versionIndexFiles.Length} files in version index.");
+            Logger.Trace($"Scanning batch of {versionIndexFiles.Length} files.");
             foreach (var item in versionIndexFiles)
             {
                 if (TryParse(item.Name, item.Created, context.Prefix!, out var editor))
