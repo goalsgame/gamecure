@@ -12,50 +12,61 @@ public class GetEditorVersions : IMiddleware<EditorVersionsContext>
     private static readonly HttpClient _client = new();
     public async Task<EditorVersionsContext> OnInvoke(EditorVersionsContext context, ContextDelegate<EditorVersionsContext> next)
     {
-        var requestMessage = new HttpRequestMessage(HttpMethod.Get, context.IndexUrl+"&maxResults=2000")
-        {
-            Headers = { Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken) }
-        };
-
-        var result = await _client.SendAsync(requestMessage);
-        if (!result.IsSuccessStatusCode)
-        {
-            var error = $"Failed to get editor indices with status code {result.StatusCode} and reason {result.ReasonPhrase}";
-            Logger.Error(error);
-            return context with { Failed = true, Reason = error };
-        }
-
-        var stream = await result.Content.ReadAsStreamAsync();
-        var storageList = await Json.DeserializeAsync<StorageList>(stream);
-
-        if (storageList == null)
-        {
-            return context with { Failed = true, Reason = "Failed to deserialize indices in the storage list." };
-        }
-
-        if (storageList.Items == null)
-        {
-            return context with { Failed = true, Reason = "Items was null, is the url correct?" };
-        }
-
-        var versionIndexFiles = storageList
-            .Items
-            .Where(v => v.Name.EndsWith(".lvi"))
-            .ToArray();
-
-        Logger.Trace($"Found {versionIndexFiles.Length} versions.");
         List<EditorVersion> versions = new();
-        foreach (var item in versionIndexFiles)
+        var nextPageOption = string.Empty;
+
+        do
         {
-            if (TryParse(item.Name, item.Created, context.Prefix!, out var editor))
+            var requestMessage = new HttpRequestMessage(HttpMethod.Get, context.IndexUrl + "&maxResults=487&projection=noAcl" + nextPageOption)
             {
-                versions.Add(editor);
-            }
-            else
+                Headers = { Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken) }
+            };
+
+            var result = await _client.SendAsync(requestMessage);
+            if (!result.IsSuccessStatusCode)
             {
-                Logger.Warning($"Failed to parse editor version from item with name: {item.Name}");
+                var error =
+                    $"Failed to get editor indices with status code {result.StatusCode} and reason {result.ReasonPhrase}";
+                Logger.Error(error);
+                return context with { Failed = true, Reason = error };
             }
-        }
+
+            var stream = await result.Content.ReadAsStreamAsync();
+            var storageList = await Json.DeserializeAsync<StorageList>(stream);
+
+            if (storageList == null)
+            {
+                return context with { Failed = true, Reason = "Failed to deserialize indices in the storage list." };
+            }
+
+            if (storageList.Items == null)
+            {
+                return context with { Failed = true, Reason = "Items was null, is the url correct?" };
+            }
+
+            var versionIndexFiles = storageList
+                    .Items
+                    .Where(v => v.Name.EndsWith(".lvi"))
+                    .ToArray();
+
+            Logger.Trace($"Scanning batch of {versionIndexFiles.Length} files.");
+            foreach (var item in versionIndexFiles)
+            {
+                if (TryParse(item.Name, item.Created, context.Prefix!, out var editor))
+                {
+                    versions.Add(editor);
+                }
+                else
+                {
+                    Logger.Warning($"Failed to parse editor version from item with name: {item.Name}");
+                }
+            }
+
+            nextPageOption = string.IsNullOrEmpty(storageList.NextPageToken) ? string.Empty : $"&pageToken={storageList.NextPageToken}";
+            
+        } while (nextPageOption != string.Empty);
+
+        Logger.Trace($"Found {versions.Count} versions.");
 
         return await next(context with
         {
@@ -84,7 +95,12 @@ public class GetEditorVersions : IMiddleware<EditorVersionsContext>
         }
     }
 
-    private record StorageList(StorageListItems[]? Items);
+    private record StorageList(StorageListItems[]? Items)
+    {
+        [JsonPropertyName("nextPageToken")]
+        public string? NextPageToken { get; set; }
+    }
+
     private record StorageListItems(string Name)
     {
         [JsonPropertyName("timeCreated")]
