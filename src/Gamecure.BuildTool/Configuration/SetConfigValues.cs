@@ -1,4 +1,5 @@
 ﻿using Gamecure.Core.Common.Logging;
+using Gamecure.Core.Configuration;
 using Gamecure.Core.Pipeline;
 
 namespace Gamecure.BuildTool.Configuration;
@@ -23,12 +24,15 @@ internal class SetConfigValues : IMiddleware<ConfigContext>
             {
                 Repository = GetValue(appConfig.Plastic.Repository, context.PlasticRepository)
             },
-            GitCommit = GetValue(appConfig.GitCommit, context.GitCommit)
+            GitCommit = GetValue(appConfig.GitCommit, context.GitCommit),
+            Jira = GetJiraConfig(appConfig.Jira)
         };
+
 
         return await next(context with { AppConfig = appConfig });
 
 
         static string GetValue(string currentValue, string? newValue) => string.IsNullOrWhiteSpace(newValue) ? currentValue : newValue;
+        static JiraConfig? GetJiraConfig(JiraConfig? config) => string.IsNullOrEmpty(config?.Url) ? null : config;
     }
 }
