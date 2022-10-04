@@ -1,4 +1,5 @@
 ﻿using Gamecure.Core.Common.Logging;
+using Gamecure.Core.Configuration;
 using Gamecure.Core.Pipeline;
 
 namespace Gamecure.BuildTool.Configuration;
@@ -35,6 +36,11 @@ internal class ValidateConfig : IMiddleware<ConfigContext>
         if (string.IsNullOrWhiteSpace(context.AppConfig?.Container))
         {
             return context with { Failed = true, Reason = "Must specify a Google Storage Container" };
+        }
+
+        if (context.AppConfig.Jira is null)
+        {
+            Logger.Warning($"{nameof(AppConfig.Jira)} is null, jira integration will be disabled.");
         }
 
         return await next(context);
