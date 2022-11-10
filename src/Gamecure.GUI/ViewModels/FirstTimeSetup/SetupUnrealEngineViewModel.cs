@@ -25,7 +25,7 @@ public class SetupUnrealEngineViewModel : ViewModelBase
     public async Task<bool> RunSetup(string? workspace = null)
     {
         _workspace = workspace;
-        var result = await SetupUnrealEngineTask.Execute();
+        var result = await SetupUnrealEngineTask.Execute(true);
         return result?.Succeeded ?? false;
     }
 }
