@@ -12,6 +12,8 @@ podTemplate(
 		],
 		envVars: [
 			envVar(key: "DOTNET_CLI_HOME", value: "/tmp/DOTNET_CLI_HOME")
+			// https://github.com/dotnet/core/issues/7868
+			envVar(key: "XDG_DATA_HOME", value: "/tmp/DOTNET_CLI_HOME")
 		]) {
 			node(POD_LABEL) {
 				try{
