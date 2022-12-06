@@ -10,7 +10,7 @@ public class PlasticChangesets : IMiddleware<PlasticContext>
     public async Task<PlasticContext> OnInvoke(PlasticContext context, ContextDelegate<PlasticContext> next)
     {
         //NOTE(Jens) Start both tasks (plastic is slow, don't want to run them after eachother)
-        var changesetsTask = ProcessRunner.Run(context.PlasticCLIPath, $"log --csformat=\"{LogParser.LogFormat}\" --itemformat=\"{LogParser.ItemsFormat}\"", context.Workspace, timeout: TimeSpan.FromMinutes(2));
+        var changesetsTask = ProcessRunner.Run(context.PlasticCLIPath, $"log --csformat=\"{LogParser.LogFormat}\" --itemformat=\"{LogParser.ItemsFormat}\"", context.Workspace, timeout: TimeSpan.FromMinutes(5));
 
         // Plastic changeset tracking is disabled for now, it's not reliable
         //var statusResult = await ProcessRunner.Run(context.PlasticCLIPath, $"status --header", context.Workspace, timeout: TimeSpan.FromMinutes(2));
