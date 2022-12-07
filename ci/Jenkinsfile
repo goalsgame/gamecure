@@ -1,0 +1,112 @@
+import groovy.util.XmlParser
+def helpers
+@Library(value = 'goals-lib', changelog = false) _
+
+def getVersion() {
+    buildPropsXml = readFile "${env.WORKSPACE}/Directory.Build.props"
+    buildProps = new XmlParser().parseText(buildPropsXml)
+    version = buildProps["PropertyGroup"]["Version"].text()
+    assert version != "" : "No version found for gamecure"
+    return version
+}
+
+def getUpdaterVersion() {
+    autoUpdaterPackageName = "Goals.AutoUpdater"
+    buildPropsXml = readFile file: "${env.WORKSPACE}/src/GameCure.GUI/GameCure.GUI.csproj", encoding: "UTF-8"
+    buildProps = new XmlParser().parseText(buildPropsXml)
+    updaterVersion = ""
+    buildProps["ItemGroup"].each {
+        group -> group["PackageReference"].each {
+            packageReference ->
+                attributes = packageReference.attributes()
+                if (autoUpdaterPackageName.equalsIgnoreCase(attributes['Include'])) {
+                    updaterVersion = attributes['Version']
+                }
+        }
+    }
+    assert updaterVersion != "" : "No version found for ${autoUpdaterPackageName}"
+    return updaterVersion
+}
+
+podTemplate(
+    inheritFrom: 'linux',
+    containers: [
+        containerTemplate(name: "gcp-container", image: "google/cloud-sdk:362.0.0", command: "sleep", args: "99999")
+    ]) {
+        node(POD_LABEL) {
+            try{
+                stage("Checkout") {
+                    scmVars = checkout(scm)
+                    helpers = githubHelpers
+                    helpers.setScmVars(scmVars)
+                    echo "scmVars: ${scmVars}"
+                    buildId = helpers.getBuildId()
+                    branch = helpers.getBranch()
+//						helpers.buildStarted("gamelauncher [Linux]")
+                }
+                stage("Setup platform builds") {
+                    jobNames = [ "tools_gamecure_linux", "tools_gamecure_macos", "tools_gamecure_windows" ]
+                    platformJobs = [:]
+                    jobNames.each {
+                        jobName -> platformJobs.put("${jobName}", {
+                            stage("Build ${jobName}") {
+                                build(job: "../${jobName}/${env.JOB_BASE_NAME}", parameters: [string(name: "buildId", value: "${buildId}")], wait: true)
+                            }
+                        })
+                    }
+                    parallel(platformJobs)
+                }
+
+                if (helpers.isMain()) {
+                    stage("Publish platform builds") {
+                        container('gcp-container') {
+                            from = "gs://${STUDIO_STORE_BUCKET_NAME}/gamecure/build/${branch}/${buildId}"
+                            to = "gs://${GOALS_PUBLIC_BUCKET_NAME}/gamecure/"
+                            sh "gsutil cp -r ${from} ${to}"
+                        }
+                    }
+
+                    stage("Update version.json") {
+                        version = getVersion()
+                        updaterVersion = getUpdaterVersion()
+                        publishDateTime = helpers.getBuildTimestampString()
+                        commmitHash = githubHelpers.getshortCommit()
+                        launcherDownloadBaseUrl = "https://storage.googleapis.com/goals-public/gamecure/${buildId}"
+                        packages = []
+                        platforms = ["windows" : "GOALS_Installer.msi", "macos" : "GOALS_Installer.pkg", "linux" : "GOALS_Installer.pkg"]
+                        platforms.each {
+                            entry -> packages.add([
+                                "platform" : entry.key,
+                                "installer": "${launcherDownloadBaseUrl}/${entry.key}/${entry.value}",
+                                "zip": "${launcherDownloadBaseUrl}/${entry.key}/Gamecure.GUI.${entry.key}.${commmitHash}.zip"])
+                        }
+                        content = [
+                            "version" : version,
+                            "buildId" : buildId,
+                            "updaterVersion" : updaterVersion,
+                            "publishDate": publishDateTime,
+                            "buildNumber": currentBuild.timeInMillis,
+                            "packages": packages
+                        ]
+                        localFileName = "${env.WORKSPACE}/version.json"
+                        writeJSON(file: localFileName, json: content)
+                        remoteBuildSpecificFileName = "gs://${GOALS_PUBLIC_BUCKET_NAME}/gamecure/${buildId}/version.json"
+                        remoteFileName = "gs://${GOALS_PUBLIC_BUCKET_NAME}/gamecure/version.json"
+                        container('gcp-container') {
+                            // also put the version.json file in the build specific directory
+                            sh "gsutil cp ${localFileName} ${remoteBuildSpecificFileName}"
+                            sh "gsutil cp ${localFileName} ${remoteFileName}"
+                            sh "gsutil setmeta -h \"Cache-Control: public, max-age=60\" -h \"Content-Type: application/json\" ${remoteFileName}"
+                        }
+                    }
+                }
+            }
+            finally {
+//					if ("SUCCESS".equalsIgnoreCase(currentBuild.currentResult)) {
+//						helpers.buildSuccess("gamelauncher [Linux]")
+//					} else {
+//						helpers.buildFailed("gamelauncher [Linux]")
+//					}
+            }
+        }
+    }

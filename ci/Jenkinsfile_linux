@@ -3,6 +3,9 @@ def helpers
 def upload(uploadFolder, source, destinationFileName = "") {
 	sh "gsutil cp ${source} gs://${STUDIO_STORE_BUCKET_NAME}/gamecure/${uploadFolder}/${destinationFileName}"
 }
+properties(
+    [ parameters([string(name: "buildId", defaultValue: "unknown")]) ]
+)
 
 podTemplate(
 		inheritFrom: 'linux',
@@ -24,7 +27,7 @@ podTemplate(
 						echo "scmVars: ${scmVars}"
 						commit = helpers.getCommit()
 						sh "echo \"${commit}\" > latest-commit.txt"
-						helpers.buildStarted("gamecure [Linux]")
+//						helpers.buildStarted("gamecure [Linux]")
 					}
 
 					stage("test") {
@@ -41,20 +44,17 @@ podTemplate(
 							sh "dotnet run --project src/Gamecure.BuildTool/ -- config -t ${GAMECURE_CONFIG_DIR}config.json -gc ${commit} -o config.json"
 							sh "dotnet run --project src/Gamecure.BuildTool/ -- build -c Release -o release/gamecure.GUI.linux -r linux --zip ${zipFile} --configfile config.json"
 						}
-						uploadFolder = helpers.getBranch()
 						container('gcp-container') {
-							upload(helpers.getBranch(),"release/${zipFile}")
-							upload(helpers.getBranch(),"release/${zipFile}", "gamecure.linux.zip")
-							upload(helpers.getBranch(), "latest-commit.txt")
+                            upload('build/' + helpers.getBranch() + "/${params.buildId}/linux", "release/linux/*.zip")
 						}
 					}
 				}
 				finally {
-					if ("SUCCESS".equalsIgnoreCase(currentBuild.currentResult)) {
+/*					if ("SUCCESS".equalsIgnoreCase(currentBuild.currentResult)) {
 						helpers.buildSuccess("gamecure [Linux]")
 					} else {
 						helpers.buildFailed("gamecure [Linux]")
 					}
-				}
+*/				}
 			}
 		}

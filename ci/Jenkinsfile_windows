@@ -5,6 +5,9 @@ def upload(uploadFolder, source, destinationFileName = "") {
 	arguments = "\"cp\",\"${source}\",\"gs://${STUDIO_STORE_BUCKET_NAME}/gamecure/${uploadFolder}/${destinationFileName}\""
 	pwsh "Start-Process -FilePath ${gsUtilLocation} -ArgumentList ${arguments} -NoNewWindow -Wait -PassThru"
 }
+properties(
+    [ parameters([string(name: "buildId", defaultValue: "unknown")]) ]
+)
 
 podTemplate(
 		inheritFrom: 'windows',
@@ -20,8 +23,7 @@ podTemplate(
 						helpers.setScmVars(scmVars)
 						echo "scmVars: ${scmVars}"
 						commit = helpers.getCommit()
-						pwsh "\"${commit}\" > latest-commit.txt"
-						helpers.buildStarted("gamecure [Windows]")
+//						helpers.buildStarted("gamecure [Windows]")
 					}
 
 					stage("test") {
@@ -42,22 +44,20 @@ podTemplate(
 					}
 
 					stage("win installer") {
-						commitShort = helpers.getshortCommit()
 						container('build-container') {
 							powershell "dotnet run --project src/Gamecure.BuildTool/ -- config -t ${GAMECURE_CONFIG_DIR}config.json -gc ${commit} -o config.json -f"
 							powershell "dotnet run --project src/Gamecure.BuildTool/ -- build -c Release -o installer/ -r win -p installer --configfile config.json"
 						}
-						upload(helpers.getBranch(), "installer/*.msi")
-						// Finally upload the commit
-						upload(helpers.getBranch(), "latest-commit.txt")
+                        upload('build/' + helpers.getBranch() + "/${params.buildId}/windows", "release/windows/*.zip")
+                        upload('build/' + helpers.getBranch() + "/${params.buildId}/windows", "installer/*.msi")
 					}
 				}
 				finally {
-					if ("SUCCESS".equalsIgnoreCase(currentBuild.currentResult)) {
+/*					if ("SUCCESS".equalsIgnoreCase(currentBuild.currentResult)) {
 						helpers.buildSuccess("gamecure [Windows]")
 					} else {
 						helpers.buildFailed("gamecure [Windows]")
 					}
-				}
+*/				}
 			}
 		}
