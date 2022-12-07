@@ -11,7 +11,9 @@ podTemplate(
 			containerTemplate(name: "gcp-container", image: "google/cloud-sdk:362.0.0", command: "sleep", args: "99999")
 		],
 		envVars: [
-			envVar(key: "DOTNET_CLI_HOME", value: "/tmp/DOTNET_CLI_HOME")
+			envVar(key: "DOTNET_CLI_HOME", value: "/tmp/DOTNET_CLI_HOME"),
+			// https://github.com/dotnet/core/issues/7868
+			envVar(key: "XDG_DATA_HOME", value: "/tmp/DOTNET_CLI_HOME")
 		]) {
 			node(POD_LABEL) {
 				try{
