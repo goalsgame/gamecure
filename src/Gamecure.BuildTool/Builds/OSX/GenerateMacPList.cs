@@ -17,7 +17,7 @@ internal class GenerateMacPList : IMiddleware<BuildContext>
         }
 
         Logger.Trace($"Product version: {version}");
-        var plist = CreatePList(version, "Gamecure", "Gamecure.GUI", "goals.icns");
+        var plist = CreatePList(version, "Gamecure", "Gamecure", "goals.icns");
 
         await File.WriteAllTextAsync(plistPath, plist);
         return await next(context);

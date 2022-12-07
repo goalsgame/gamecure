@@ -10,6 +10,7 @@ public class ProcessRunner
     public static async ValueTask<ProcessResult> Run(string command, string arguments, string workingDirectory, TimeSpan timeout, KeyValuePair<string, string>[]? environmentVariables = null, bool createNewWindow = false, bool redirectOutput = true)
     {
         Logger.Trace($"Run command: {command} {arguments}");
+        Logger.Trace($"Working directory: {workingDirectory}");
         var startInfo = new ProcessStartInfo(command, arguments)
         {
             WorkingDirectory = workingDirectory,

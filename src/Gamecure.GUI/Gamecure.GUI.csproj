@@ -9,6 +9,7 @@
     <PublishTrimmed>true</PublishTrimmed>
     <TrimmerResolveSymbols>true</TrimmerResolveSymbols>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <AssemblyName>Gamecure</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
@@ -33,6 +34,7 @@
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="0.10.12" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.12" />
+    <PackageReference Include="Goals.AutoUpdater" Version="0.0.10" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gamecure.Core\Gamecure.Core.csproj" />

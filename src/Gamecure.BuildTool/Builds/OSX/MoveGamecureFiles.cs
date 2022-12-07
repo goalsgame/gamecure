@@ -11,7 +11,7 @@ internal class MoveGamecureFiles : IMiddleware<BuildContext>
     {
         var binaryFiles = new[]
         {
-            "Gamecure.GUI",
+            "Gamecure",
             "libHarfBuzzSharp.dylib",
             "libSkiaSharp.dylib",
             "libAvaloniaNative.dylib"

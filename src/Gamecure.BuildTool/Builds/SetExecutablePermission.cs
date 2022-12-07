@@ -10,7 +10,7 @@ internal class SetExecutablePermission : IMiddleware<BuildContext>
     public bool ShouldRun(BuildContext context) => context.Runtime == BuildRuntime.Osx;
     public async Task<BuildContext> OnInvoke(BuildContext context, ContextDelegate<BuildContext> next)
     {
-        var executable = Path.Combine(context.MacBundle?.BinaryPath!, "Gamecure.GUI");
+        var executable = Path.Combine(context.MacBundle?.BinaryPath!, "Gamecure");
         if (GlobalConfiguration.Platform is Platform.Linux or Platform.Macos)
         {
             var result = await ProcessRunner.Run("chmod", $"+x {executable}", GlobalConfiguration.BaseDirectory);

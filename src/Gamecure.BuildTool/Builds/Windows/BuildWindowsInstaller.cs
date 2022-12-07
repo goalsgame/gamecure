@@ -27,7 +27,9 @@ internal class BuildWindowsInstaller : IMiddleware<BuildContext>
             $"-p:ConfigPath={Path.GetFullPath(configFile)}"
         };
 
-        var result = await ProcessRunner.Run("msbuild", string.Join(' ', arguments), GlobalConfiguration.BaseDirectory, TimeSpan.FromMinutes(10));
+        var joinedArgs = string.Join(' ', arguments);
+        Logger.Trace($"Command: msbuild {joinedArgs}");
+        var result = await ProcessRunner.Run("msbuild", joinedArgs, GlobalConfiguration.BaseDirectory, TimeSpan.FromMinutes(10));
         if (!result.Success)
         {
             Logger.Error($"Failed to build with exit code: {result.ExitCode}");
