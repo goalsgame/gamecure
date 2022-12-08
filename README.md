@@ -46,6 +46,9 @@ To download the Goals.AutoUpdater package you need to create a nuget.config file
 </configuration>
 ```
 
+You can also add it to your global configuration by running the command  
+`dotnet nuget add source --username USERNAME --password [YOUR TOKEN] --store-password-in-clear-text --name github "https://nuget.pkg.github.com/goalsgame/index.json"`
+
 ### Config file
 To run the app locally you need to create a config.json file and place it in the root folder (you can also put it in the `[AppData]/GOALS/Gamecure` folder)
 (This file is ignored in the .gitignore)
