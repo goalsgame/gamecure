@@ -22,14 +22,14 @@ public static class GlobalConfiguration
         var path = GetAppDataPath();
         if (!string.IsNullOrWhiteSpace(path))
         {
-            return Path.Combine(path, "GOALS", "Gamecure");
+            return Path.Combine(path, "GOALS_DEV", "Gamecure");
         }
         // If we can't determine a path, just use the path where the executable is. (this will unfortunately fail on MacOS)
         return BaseDirectory;
 
         static string GetAppDataPath()
         {
-            var workdingDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var workdingDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             if (string.IsNullOrWhiteSpace(workdingDirectory))
             {
                 var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
@@ -43,7 +43,7 @@ public static class GlobalConfiguration
     }
     private static string GetBaseDirectory()
     {
-        var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+        var baseDirectory = AppContext.BaseDirectory;
         // NOTE(Jens): If the app is compiled in Release it wont try to find the root folder
 #if DEBUG
         const string SolutionFilename = "Gamecure.sln";
