@@ -1,6 +1,6 @@
 {
     "url": "https://storage.googleapis.com/goals-public/gamecure/version.json",
-    "name": "GOALS_Dev",
+    "name": "GOALS_DEV/Gamecure",
     "executable" : "Gamecure.exe",
     "installTrigger": "Patch"
 }

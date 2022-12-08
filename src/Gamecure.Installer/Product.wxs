@@ -43,12 +43,15 @@
 
 			<Directory Id="LocalAppDataFolder">
 				<Directory Id="AppDataManufacturerFolder" Name="$(var.Manufacturer)">
-					<Directory Id="GamecureVersionFolder" Name="app-$(var.ProductVersion)">
-						<Component Id="AppDataFolderComponent" Guid="C5C41C59-3863-4FEB-BCEA-F5EB2733FD0D" Feature="ProductFeature">
-							<RemoveFolder Id="RemoveAppDataManufacturerFolder" Directory="AppDataManufacturerFolder" On="uninstall" />
-							<RemoveFolder Id="RemoveGamecureVersionFolder" Directory="GamecureVersionFolder" On="uninstall" />
-							<RegistryValue Root="HKCU" Key="Software\[Manufacturer]\[ProductName]" Type="string" Name="GamecureLocation" Value="[GamecureVersionFolder]" KeyPath="yes" />
-						</Component>
+					<Directory Id="AppDataProductFolder" Name="$(var.ProductName)">
+						<Directory Id="GamecureVersionFolder" Name="app-$(var.ProductVersion)">
+							<Component Id="AppDataFolderComponent" Guid="C5C41C59-3863-4FEB-BCEA-F5EB2733FD0D" Feature="ProductFeature">
+								<RemoveFolder Id="RemoveAppDataManufacturerFolder" Directory="AppDataManufacturerFolder" On="uninstall" />
+								<RemoveFolder Id="RemoveAppDataProductFolder" Directory="AppDataProductFolder" On="uninstall" />
+								<RemoveFolder Id="RemoveGamecureVersionFolder" Directory="GamecureVersionFolder" On="uninstall" />
+								<RegistryValue Root="HKCU" Key="Software\[Manufacturer]\[ProductName]" Type="string" Name="GamecureLocation" Value="[GamecureVersionFolder]" KeyPath="yes" />
+							</Component>
+						</Directory>
 					</Directory>
 				</Directory>
 			</Directory>
@@ -86,44 +89,30 @@
 	<Fragment>
 		<ComponentGroup Id="ProductComponents" Directory="GamecureVersionFolder">
 			<Component Id="Gamecure.exe" Guid="0C479035-29F3-483F-9702-7497B7ADAC86">
-				<RegistryValue Root="HKCU" Key="Software\Manufacturer\Product" Name="Gamecure" Value="Gamecure.exe" Type="string" KeyPath="yes" />
+				<RegistryValue Root="HKCU" Key="Software\[Manufacturer]\[ProductName]" Name="Gamecure" Value="Gamecure.exe" Type="string" KeyPath="yes" />
 				<File Id="Gamecure.exe" Source="$(var.GamecureGUI_Path)\Gamecure.exe" Checksum="yes"/>
 			</Component>
 			<Component Id="libSkiaSharp.dll" Guid="D952D53A-43E1-4679-9C82-9BD989985A7F">
-				<RegistryValue Root="HKCU" Key="Software\Manufacturer\Product" Name="libSkiaSharp" Value="Gamecure.exe" Type="string" KeyPath="yes" />
+				<RegistryValue Root="HKCU" Key="Software\[Manufacturer]\[ProductName]" Name="libSkiaSharp" Value="Gamecure.exe" Type="string" KeyPath="yes" />
 				<File Id="libSkiaSharp.dll" Source="$(var.GamecureGUI_Path)\libSkiaSharp.dll" Checksum="yes"/>
 			</Component>
 			<Component Id="libHarfBuzzSharp.dll" Guid="D3394BD6-35A6-43FC-B9E6-8F3CD78F97F0">
-				<RegistryValue Root="HKCU" Key="Software\Manufacturer\Product" Name="libHarfBuzzSharp" Value="Gamecure.exe" Type="string" KeyPath="yes" />
+				<RegistryValue Root="HKCU" Key="Software\[Manufacturer]\[ProductName]" Name="libHarfBuzzSharp" Value="Gamecure.exe" Type="string" KeyPath="yes" />
 				<File Id="libHarfBuzzSharp.dll" Source="$(var.GamecureGUI_Path)\libHarfBuzzSharp.dll" Checksum="yes"/>
 			</Component>
 			<!-- Add this when the longtail implementation has been replaced -->
 			<!--<Component Id="longtail_win32_x64.dll" Guid="754FD23B-3C7F-4501-B678-0CD0C5A7960E">
-				<RegistryValue Root="HKCU" Key="Software\Manufacturer\Product" Name="Longtail" Value="Gamecure.exe" Type="string" KeyPath="yes" />
+				<RegistryValue Root="HKCU" Key="Software\[Manufacturer]\[ProductName]" Name="Longtail" Value="Gamecure.exe" Type="string" KeyPath="yes" />
 				<File Id="longtail_win32_x64.dll" Source="$(var.Longtail_Path)" Checksum="yes"/>
 			</Component>-->
 			<Component Id="config.json" Guid="E969668F-5335-4941-AC98-B22F41E480B3">
-				<RegistryValue Root="HKCU" Key="Software\Manufacturer\Product" Name="Config" Value="Gamecure.exe" Type="string" KeyPath="yes" />
+				<RegistryValue Root="HKCU" Key="Software\[Manufacturer]\[ProductName]" Name="Config" Value="Gamecure.exe" Type="string" KeyPath="yes" />
 				<File Id="config.json" Source="$(var.GamecureConfig_Path)" Checksum="yes"/>
 			</Component>
 			<Component Id="Updater.exe" Guid="8FB192B6-EB2F-4CF6-ACFA-5E253E27D3BA">
-				<RegistryValue Root="HKCU" Key="Software\Manufacturer\Product" Name="Updater" Value="Gamecure.exe" Type="string" KeyPath="yes" />
+				<RegistryValue Root="HKCU" Key="Software\[Manufacturer]\[ProductName]" Name="Updater" Value="Gamecure.exe" Type="string" KeyPath="yes" />
 				<File Id="Updater.exe" Source="$(var.GamecureGUI_Path)\Updater.exe" Checksum="yes"/>
 			</Component>
 		</ComponentGroup>
 	</Fragment>
-
-	<!--<Fragment>
-		<ComponentGroup Id="ProductComponents" Directory="INSTALLDIR">
-			<Component Id="Gamecure.exe" Guid="8596156F-2C82-4D5E-A415-F7F91442D920">
-				<File Id="Gamecure.exe" Source="$(var.GamecureGUI_Path)\Gamecure.exe" KeyPath="yes" Checksum="yes"/>
-			</Component>
-			<Component Id="libSkiaSharp.dll" Guid="65BCFEAF-DA10-4CF3-8330-D78556F0C003">
-				<File Id="libSkiaSharp.dll" Source="$(var.GamecureGUI_Path)\libSkiaSharp.dll" KeyPath="yes" Checksum="yes"/>
-			</Component>
-			<Component Id="libHarfBuzzSharp.dll" Guid="C7353A59-148F-4E02-9280-D84D955FB6F7">
-				<File Id="libHarfBuzzSharp.dll" Source="$(var.GamecureGUI_Path)\libHarfBuzzSharp.dll" KeyPath="yes" Checksum="yes"/>
-			</Component>
-		</ComponentGroup>
-	</Fragment>-->
 </Wix>
