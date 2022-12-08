@@ -15,3 +15,5 @@ config.json
 *.iml
 
 UpgradeLog*.htm*
+
+nuget.config

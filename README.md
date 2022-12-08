@@ -27,6 +27,25 @@ be dual licensed as above, without any additional terms or conditions.
 * Extension for VS 2022: [WixToolsetVisualStudio2022Extension](https://marketplace.visualstudio.com/items?itemName=WixToolset.WixToolsetVisualStudio2022Extension)
 
 
+### Nuget config
+To download the Goals.AutoUpdater package you need to create a nuget.config file in the root folder of the repo and add an personal access token(Classic) with read packages permission.
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+    <packageSources>
+        <clear />
+        <add key="nuget" value="https://api.nuget.org/v3/index.json" />
+        <add key="github" value="https://nuget.pkg.github.com/goalsgame/index.json" />
+    </packageSources>
+    <packageSourceCredentials>
+        <github>
+            <add key="Username" value="USERNAME" />
+            <add key="ClearTextPassword" value="[YOUR PERSONAL ACCESS TOKEN]" />
+        </github>
+    </packageSourceCredentials>
+</configuration>
+```
+
 ### Config file
 To run the app locally you need to create a config.json file and place it in the root folder (you can also put it in the `[AppData]/GOALS/Gamecure` folder)
 (This file is ignored in the .gitignore)
