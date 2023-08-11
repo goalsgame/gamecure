@@ -17,7 +17,6 @@
             "Engine/Binaries/DotNET/GitDependencies.exe",
             "Engine/Binaries/DotNET/GitDependencies.exe.config",
             "Game",
-            "Game/Shaders",
             "Setup.bat",
             "Setup.sh",
             "UE4Games.uprojectdirs",
